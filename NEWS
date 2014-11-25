@@ -1,0 +1,193 @@
+Version 0.14
+------------
+
+The root password is now automatically cleared, so that it is possible to
+immediately log into a newly created instance.
+
+A hardcoded reference to ext3 is removed.
+
+The documentation is improved, correctly specifying that the default debian
+version installed is now wheezy, and with the addition of examples on how to run
+hooks while creating a new instance.
+
+Version 0.13
+------------
+
+The Debian version installed by default is now Wheezy.
+
+The filesystem type for the root partition of instances is now
+configurable through the new OS parameter ``filesystem``. It
+defaults to 'ext4'.
+
+Improve documentation with regard to instance variants.
+
+Bugfixes:
+
+- Report an error if it's exporting an instance fails because of the
+  wrong filesystem type.
+
+Version 0.12
+------------
+
+A few small bugfixes:
+
+- the defaults file is now installed automatically; even though all
+  settings are commented out, this allows for easier configuration
+- require and check for a minimum device size; this makes error messages
+  much clearer, compared to tar's out of disk space errors (fixes issue
+  164)
+- it is now possible to override the "components" argument to
+  debootstrap, to be able to install more packages (e.g. from contrib,
+  or from universe) (fixes issue 254)
+- all existing hooks are now distributed in the archive and also
+  installed via `make install' (fixes issue 283)
+- the console activation for xen-pvm hypervisor has been corrected;
+  before it was working only for kvm (fixes issue 284)
+
+
+Version 0.11
+------------
+
+The partition alignment offset is now configurable (using the
+PARTITION_ALIGNMENT configuration setting, in sectors) and the
+distribution names and packages in the defaults file have been updated.
+
+Furthermore, the grub example hook has been improved a bit:
+
+- automatically uses the defined proxy, so that package installation
+  uses the same method as the main install
+- debconf frontend set to non-interactive, to prevent an debconf
+  question loop
+
+However, there still seem to be issues related to this hook (recent grub
+versions fail to run correctly "grub-install" or "update-grub" and
+complain about device mappings); help is welcome.
+
+Version 0.10
+------------
+
+This add supports for ext4 file-systems and changes the default
+distribution from Lenny to Squeeze.
+
+Additionally, new hooks were added:
+
+- setting the password for the root user
+- setting the timezone
+- setting SSH keys for a given user
+
+Version 0.9
+-----------
+
+Changed the default CUSTOMIZE_DIR (under $sysconfdir, usually /etc) from
+ganeti/instance-debootstrap.d to ganeti/instance-debootstrap/hooks, to
+match better with the directory used for the variants file. Now
+customization of the instance-debootstrap is done either in the defaults
+file or under ganeti/instance-debootstrap.
+
+Fix serial console access for kvm instances (bind to ttyS0 rather than
+console). Please note that with this change if you toggle the serial
+console hypervisor parameter in Ganeti, but don't create the getty entry
+in /etc/inittab or /etc/event.d/ you won't have serial access. Before it
+used to work, but the serial console was slightly broken (no ctrl+c for
+example).
+
+Also start shipping the examples in the tar archive, to ease packaging.
+
+Version 0.8
+-----------
+
+Added support for OS API 15 (with OS variants) that is supported by
+Ganeti 2.1.
+
+blktype is now supported as an alternative to vol_id; this is needed for
+newer Debian-based operating systems.
+
+Added an example grub script, that can be used for automatically
+installing grub inside new instances.
+
+Version 0.7
+-----------
+
+Fix Ganeti 1.2 compatibility (0.6 was broken) and force the scripts to be
+executed under /bin/bash (rather than /bin/sh). This fixes compatibility with
+distributions where /bin/sh is not bash.
+
+Support 'msdos' partition style, in which the instance disk gets a partition
+table, and one big partition, rather than creating the filesytem directly on
+the block device. This requires kpartx to be installed, and is the default when
+installing under Ganeti 2.0.
+
+Added the possibility to customize the installation without having to patch the
+os directly, by executing the scripts in CUSTOMIZE_DIR and giving them a chance
+to change the instance filesystem. As an example a script that sets the first
+nic to request a dhcp address is provided.
+
+Version 0.6
+-----------
+
+Support for Ganeti 2.0 (os api 10)
+
+The instance's fstab is now generated with volumes' UUIDs rather than paths.
+This makes it more resilient to changes and use under different
+hypervisors/drivers.
+
+Init is configured to listen on /dev/console rather than /dev/tty1
+
+Version 0.5
+-----------
+
+Most of the settings of the script have been moved to a configuration
+file.  Depending on the ./configure options, the location of this file
+might be /etc/default/ganeti-instance-debootstrap or
+/usr/local/etc/default/ganeti-instance-debootstrap.
+
+The cache generation and cleaning variables can be modified as follows:
+
+- to enable generating the cache, modify the config file and set
+  GENERATE_CACHE to "yes"
+- to disable cleaning the cache, set CLEAN_CACHE to ""; or
+  alternatively, you can customize with this variable the number of days
+  after which to clear the cache
+
+Note that the cache file is no longer stored in the same directory as
+the OS definition files, but (again depending on ./configure options)
+usually under /var/cache/ganeti-instance-debootstrap.
+
+There are many other customizable settings added in this version, for
+example the actual OS to be installed (no longer always installing
+Debian Etch), whether to use a proxy or not, etc. See the README and the
+'defaults' files.
+
+Version 0.4
+-----------
+
+This version fixes the problem of interface renaming at instance import
+time, by removing the saved udev hotplug rules (if any).
+
+Version 0.3
+-----------
+
+The OS will cache the image of the first instance it installs using the
+name "cache-$arch.tar" (where $arch is what dpkg --print-architecture
+returns) on a node-by-node basis. This cache will be then used on the
+future installs, speeding them greatly (even with a fast mirror). Feel
+free to remove the cache at any time, or to copy it to all nodes. The
+cache will be kept for two weeks, after which the first install will
+recreate the cache (in order not to use old packages). If you don't care
+about package age, remove the user write permission (chmod u-w) from the
+cache and ganeti will continue to use the same file without refreshing
+it.
+
+If you don't have enough space and don't want cache creation, just touch
+the file 'no_cache' - this will prevent the creation, but the script
+will continue to use a cache if it exists (but it will remove an
+existing one after two weeks).
+
+Also note that if the image file is there, the script does not need
+network access at all.
+
+.. vim: set textwidth=72 :
+.. Local Variables:
+.. mode: rst
+.. fill-column: 72
+.. End:

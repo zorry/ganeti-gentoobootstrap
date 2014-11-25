@@ -1,0 +1,81 @@
+#!/bin/bash
+
+# Copyright (C) 2009 Google Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+# This is an example script that configures you /etc/conf.d/net after
+# installation.  By default its sets up the system to use dhcp. To use it just
+# put it in your CUSTOMIZE_DIR and make it executable.
+
+FQDN="${INSTANCE_NAME}"
+SHORT_NAME="$(echo ${INSTANCE_NAME} | cut -d . -f 1)"
+STATIC=""
+
+if [ -z "$TARGET" -o ! -d "$TARGET" ]; then
+  echo "Missing target directory"
+  exit 1
+fi
+
+if  [ -z "$NIC_COUNT" ]; then
+  echo "Missing NIC COUNT"
+  exit 1
+fi
+
+if [ -f "${NETWORKS_DIR}/instances/${FQDN}" ] ; then
+  STATIC="yes"
+  source ${NETWORKS_DIR}/instances/${FQDN}
+  if [ -f "${NETWORKS_DIR}/subnets/${SUBNET}" ] ; then
+    source ${NETWORKS_DIR}/subnets/${SUBNET}
+  else
+    echo "No subnet file for subnet ${SUBNET}!"
+    exit 1
+  fi
+fi
+
+resolvconf() {
+  nl=$'\n'
+  if [ -n "${DNS_SERVERS}" ] && [ -n "${DNS_SEARCH}" ] && [ -n "${DNS_DOMAIN}" ]; then
+    for server in $DNS_SERVERS ; do
+      nameservers="nameserver ${server}${nl}${nameservers}"
+    done
+
+     cat > ${TARGET}/etc/resolv.conf << EOF
+${nameservers}
+domain ${DNS_DOMAIN}
+search ${DNS_SEARCH}
+EOF
+  fi
+}
+
+if [ ! -f "${TARGET}/etc/conf.d/net" ] ; then
+  touch "${TARGET}/etc/conf.d/net"
+fi
+if [ -z "${STATIC}" ] ; then
+  cat > ${TARGET}/etc/conf.d/net << EOF
+config_eth0=( "dhcpcd" )
+EOF
+else
+ cat > ${TARGET}/etc/conf.d/net << EOF
+config_eth0=( "${ADDRESS} netmask ${NETMASK}" )
+routes_eth0=( "default gw ${GATEWAY}" )
+EOF
+fi
+
+resolvconf
+
+chroot ${TARGET} ln -sf /etc/init.d/net.lo /etc/init.d/net.eth0
+chroot ${TARGET} rc-update add net.eth0 default

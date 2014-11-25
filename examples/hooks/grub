@@ -1,0 +1,64 @@
+#!/bin/bash
+#
+# This is an example script that install and configure grub after installation.
+# To use it put it in your CUSTOMIZE_DIR and make it executable.
+#
+# Do not include grub in EXTRA_PKGS of
+# $sysconfdir/default/ganeti-instance-debootstrap because it will
+# cause error of debootstrap.
+
+set -e
+
+. common.sh
+
+CLEANUP=( )
+
+trap cleanup EXIT
+
+if [ -z "$TARGET" -o ! -d "$TARGET" ]; then
+  echo "Missing target directory"
+  exit 1
+fi
+
+if dmsetup info $BLOCKDEV > /dev/null 2>&1; then
+  DISKTYPE=lvm
+else
+  echo "Unknown disk type"
+  exit 1
+fi
+
+mount -o bind /dev $TARGET/dev
+CLEANUP+=("umount $TARGET/dev")
+
+mount -t proc proc $TARGET/proc
+CLEANUP+=("umount $TARGET/proc")
+
+case $DISKTYPE in
+  lvm)
+
+    # When using LVM, grub thinks we're installing to a partition. Using a loop dev fools it
+    DISK_DEV=$(losetup --show -f $BLOCKDEV)
+    CLEANUP+=("losetup -d $DISK_DEV")
+    ;;
+
+esac
+
+cat >> $TARGET/etc/default/grub <<EOF
+GRUB_CMDLINE_LINUX="text console=ttyS0,115200n8"
+GRUB_TERMINAL=serial
+GRUB_SERIAL_COMMAND="serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1"
+EOF
+
+# Install grub
+# grub2 need to be installed with USE device-mapper
+chroot "$TARGET" grub2-install $DISK_DEV
+chroot "$TARGET" grub2-mkconfig -o /boot/grub/grub.cfg
+
+# For some reason, the loopback device is still busy/open if this sleep is removed ...
+sleep 5
+
+# execute cleanups
+cleanup
+trap - EXIT
+
+exit 0

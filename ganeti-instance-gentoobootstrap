@@ -1,0 +1,41 @@
+# SWAP: Create a swap partition
+SWAP=yes
+
+# SWAP_SIZE: Manually set the size of the swap partition (in MB)
+# If left empty, it will set the size equal to the memory for the instance.
+# Make sure you have enough disk space for the swap partition!
+SWAP_SIZE="2048"
+
+# BOOT_SIZE: Set the size of the /boot partition (in MB)
+# If left empty, it will use the default setting of 100MB as the size of the
+# /boot volume.
+BOOT_SIZE="100"
+
+# FILESYSTEM: Set which filesystem to format the disks as. Currently only
+# supports ext3 or ext4. Default is ext3.
+FILESYSTEM="ext4"
+
+# KERNEL_ARGS: Add additional kernel boot arguments to an instance. This only
+# works on instances booting a kernel from inside.
+# KERNEL_ARGS=""
+
+# IMAGE_DIR: directory location for disk images
+# ( default is @localstatedir@/cache/ganeti-instance-image )
+# IMAGE_DIR=""
+
+# OVERLAY: overlay of files to be copied to the instance after OS installation.
+# This is useful for situations where you want to copy instance specific
+# configs such as resolv.conf.
+# OVERLAY=""
+
+# EXPORT_DIR: directory used when exporting an instance
+# (default is: /tmp)
+# EXPORT_DIR="/tmp"
+
+# CUSTOMIZE_DIR: a directory containing scripts to customize the installation.
+# The scripts are executed using run-parts
+# By default /etc/ganeti/instance-gentoobootstrap/hooks
+CUSTOMIZE_DIR="/etc/ganeti/instance-gentoobootstrap/hooks"
+
+# IMAGE_DEBUG: turn on debugging output for the scripts
+IMAGE_DEBUG=0

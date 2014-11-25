@@ -1,0 +1,170 @@
+ganeti-instance-gentoobootstrap
+===========================
+
+This is a guest OS definition for Ganeti (http://code.google.com/p/ganeti).
+It will install a minimal version of Gentoo via gentoobootstrap (thus it
+requires network access). This only works if you have a Gentoo-based node.
+
+Installation
+------------
+
+In order to install this package from source, you need to determine what
+options ganeti itself has been configured with. If ganeti was built
+directly from source, then the only place it looks for OS definitions is
+``/srv/ganeti/os``, and you need to install the OS under it::
+
+  ./configure --prefix=/usr --localstatedir=/var \
+    --sysconfdir=/etc \
+    --with-os-dir=/srv/ganeti/os
+  make && make install
+
+If ganeti was installed from a package, its default OS path should
+already include /usr/share/ganeti/os, so you can just run::
+
+  ./configure -prefix=/usr --localstatedir=/var \
+    --sysconfdir=/etc
+  make && make install
+
+Note that you need to repeat this procedure on all nodes of the cluster.
+
+The actual path that ganeti has been installed with can be determined by
+looking for a file named _autoconf.py under a ganeti directory in the
+python modules tree (e.g.
+``/usr/lib/python2.4/site-packages/ganeti/_autoconf.py``). In this file,
+a variable named OS_SEARCH_PATH will list all the directories in which
+ganeti will look for OS definitions.
+
+Configuration of instance creation
+----------------------------------
+
+Note: the minimum disk size accepted is 256MB, as ``gentoobootstrap``
+requires disk space both for downloading the packages and installing
+them.
+
+The kind of instance created can be customized via a settings file. This
+file is not installed by default, as the instance creation will work
+without it. The creation scripts will look for it in
+``$sysconfdir/default/ganeti-instance-gentoobootstrap``, so if you have run
+configure with the parameter ``--sysconfdir=/etc``, the final filename
+will be ``/etc/default/ganeti-instance-debootstrap``.
+
+The following settings will be examined in this file (see also the file
+named 'defaults' in the source distribution for more details):
+
+- CUSTOMIZE_DIR: a directory containing customization script for the
+  instance.  (by default $sysconfdir/ganeti/instance-debootstrap/hooks)
+  See "Customization of the instance" below.
+
+Note that the settings file is important on the node that the instance
+is installed on, not the cluster master. This is indeed not a very good
+model of using this OS but currently the OS interface in ganeti is
+limiting.
+
+Creating OS variants
+--------------------
+
+Every Ganeti OS supports variants, so it's possible to define custom OS
+variants with instance-gentoobootstrap as well. First, an additional variant has
+to be defined in ``$osdir/gentoobootstrap/variants.list`` (with ``$osdir`` being
+``/usr/share/ganeti/os`` by default). Secondly, you can configure this
+instance variant in
+``$sysconfdir/ganeti/instance-gentoobootstrap/variants/$variant.conf``, overriding
+the settings mentioned in the previous section.
+
+To use the newly created instance variant, specify it in ``gnt-instance`` like
+this::
+
+  gnt-instance add -o getoobootstrap+default ...
+
+Example
++++++++
+
+To create a Gentoo (unstable) instance variant, add the following to
+``$osdir/debootstrap/variants.list``::
+
+  unstable
+
+Now create the file
+``$sysconfdir/ganeti/instance-debootstrap/variants/unstable.conf`` with the
+following content::
+
+  MIRROR="http://archive.ubuntu.com/ubuntu/"
+  SUITE="precise"
+  COMPONENTS="main,universe"
+  ARCH="amd64"
+
+You can create Ubuntu 12.04 instances as follows::
+
+  gnt-instance add -t plain -o gentoobootstrap+unstable --disk 0:size=10000m -n node1.example.com instance1.example.com
+
+For this to work, make sure that you have the appropriate debootstrap script
+for precise (or just create a symlink called ``precise`` to ``gutsy`` in
+``/usr/share/debootstrap/scripts``).
+
+Instance creation parameters
+----------------------------
+
+Some aspects of the created instance can be conrolled via parameters at
+instance creation time with the ``-O`` parameter of ``gnt-instance``.
+
+The supported parameters are:
+
+- filesystem: the filesystem type to use for the root partition. This  has to
+  be a filesystem type supported by ``mke2fs``. The default is 'ext4'.
+
+Customization of the instance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If run-parts is in the os create script, and the CUSTOMIZE_DIR (by
+default $sysconfdir/ganeti/instance-debootstrap/hooks,
+/etc/ganeti/instance-debootstrap/hooks if you configured the os with
+--sysconfdir=/etc) directory exists any executable whose name matches
+the run-parts execution rules (quoting run-parts(8): the names must
+consist entirely of upper and lower case letters, digits, underscores,
+and hyphens) is executed to allow further personalization of the
+installation. The following environment variables are passed, in
+addition to the ones ganeti passes to the OS scripts:
+
+TARGET: directory in which the filesystem is mounted
+BLOCKDEV: ganeti block device
+
+The scripts in CUSTOMIZE_DIR can exit with an error code to signal an error in
+the instance creation, should they fail.
+
+The scripts in CUSTOMIZE_DIR should not start any long-term processes or
+daemons using this directory, otherwise the installation will fail because it
+won't be able to umount the filesystem from the directory, and hand the
+instance back to Ganeti.
+
+Example
++++++++
+
+The root password can be automatically set when the instance is created. In
+order to do this, the ``examples/hooks/defaultpasswords`` file has to be copied
+to ``$sysconfdir/ganeti/instance-debootstrap/hooks/``, and its data file
+``examples/hooks/confdata/defaultpasswords`` has to be copied to
+``$sysconfdir/ganeti/instance-debootstrap/hooks/confdata/`` and modified
+accordingly to one's own need. The file syntax is such that each line represent
+a user, with the format::
+
+  username:password
+
+After copying the two files, just running the instance creation as usual will
+automatically cause their execution.
+
+Instance notes
+--------------
+
+The instance is a minimal install:
+
+ - it has no password for root; simply login at the console
+ - it has no network interfaces defined (besides lo); add your own
+   definitions to /etc/network/interfaces
+ - after configuring the network and the system, it is recommended to run
+ ``emerge --sync`` and ``emerge -avuDN world`` so the system is up to date
+
+.. vim: set textwidth=72 :
+.. Local Variables:
+.. mode: rst
+.. fill-column: 72
+.. End:

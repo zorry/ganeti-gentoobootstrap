@@ -1,0 +1,16 @@
+# ganeti-instance-gentoobootstrap defaults file
+
+# if you want to change from the default of installing Gentoo default stable amd64
+# on the next instance, customize this file before the instance
+# installation
+
+# CUSTOMIZE_DIR: a directory containing scripts to customize the installation.
+# The scripts are executed using run-parts
+# By default /etc/ganeti/instance-debootstrap/hooks
+# CUSTOMIZE_DIR="/etc/ganeti/instance-gentoobootstrap/hooks"
+
+# CATALYST_SPEC: The spec file for Catalyst to build the stage4 image
+CATALYST_SPEC="/etc/ganeti/instance-gentoobootstrap/catalyst/stage4-amd64-default-stable.spec"
+
+# STAGE4_FILE: The stage4 image that was build of Catalyst
+STAGE4_FILE="/var/tmp/catalyst/builds/default/stage4-amd64-stable-date.tar.bz2"

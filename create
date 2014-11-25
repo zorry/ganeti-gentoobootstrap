@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# Copyright (C) 2007, 2008, 2009, 2012 Google Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+set -e
+
+# minimum device size is 256 MB, but we use 255 to account for
+# potential rounding
+declare -ri MIN_DEV_SIZE=$((255*1048576))
+
+. common.sh
+
+# If the target device is not a real block device we'll first losetup it.
+# This is needed for file disks.
+if [ ! -b $blockdev ]; then
+  ORIGINAL_BLOCKDEV=$blockdev
+  blockdev=$(losetup --show -f $blockdev)
+  CLEANUP+=("losetup -d $blockdev")
+fi
+
+DEVICE_SIZE=$(blockdev --getsize64 $blockdev)
+if [ "$DEVICE_SIZE" -lt $MIN_DEV_SIZE ]; then
+  echo "Device size is too small ($((DEVICE_SIZE/1048576)) MB)" 1>&2
+  echo "Required size is at least 256MB" 1>&2
+  exit 1
+fi
+
+# volumes, filesystems, etc
+# Create 3 partitions, /boot, swap, & /
+format_disk0 $blockdev
+filesystem_dev=$(map_disk0 $blockdev)
+CLEANUP+=("unmap_disk0 $blockdev")
+root_dev=$(map_partition $filesystem_dev root)
+boot_dev=$(map_partition $filesystem_dev boot)
+swap_dev=$(map_partition $filesystem_dev swap)
+
+mkfs_disk0
+root_uuid="$($VOL_ID $root_dev)"
+[ -n "$boot_dev" ] && sleep 1 && boot_uuid="$($VOL_ID $boot_dev)"
+[ -n "$swap_dev" ] && sleep 1 && swap_uuid="$($VOL_ID $swap_dev)"
+
+TARGET=`mktemp -d` || exit 1
+CLEANUP+=("rmdir $TARGET")
+
+# mount filesystems
+mount_disk0 $TARGET
+
+# Call catalyst to build stag4
+if [ ! -f "${CATALYST_SPEC}" ] ; then
+  log_error "Can't find Catalyst spec file: $CATALYST_SPEC"
+  exit 1
+fi
+catalyst -f ${CATALYST_SPEC}
+
+# extract the stage4 file
+if [ i -f "${STAGE4_FILE}" ] ; then
+  log_error "Can't find stage4 file: $STAGE4_FILE"
+  exit 1
+fi
+tar -C ${TARGET} -xjpf ${STAGE4_FILE}
+
+setup_fstab $TARGET
+setup_console $TARGET
+
+# reset the root password
+chroot $TMPDIR passwd -d root
+
+RUN_PARTS=`which run-parts`
+
+if [ -n "$RUN_PARTS" -a -n "$CUSTOMIZE_DIR" -a -d "$CUSTOMIZE_DIR" ]; then
+  TARGET=$TMPDIR
+  BLOCKDEV=$blockdev
+  FSYSDEV=$filesystem_dev
+  export TARGET BLOCKDEV ROOT_DEV BOOT_DEV
+  $RUN_PARTS $CUSTOMIZE_DIR
+fi
+
+# execute cleanups
+cleanup
+trap - EXIT
+
+exit 0
