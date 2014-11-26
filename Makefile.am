@@ -1,8 +1,8 @@
 osname=$(subst ganeti-instance-,,$(PACKAGE))
 
 osdir=$(OS_DIR)/$(osname)
-variantsdir=$(DESTDIR)$(sysconfdir)/ganeti/instance-debootstrap/variants
-defaultsdir=$(DESTDIR)$(sysconfdir)/default
+variantsdir=$(DESTDIR)$(sysconfdir)/ganeti/instance-gentoobootstrap/variants
+defaultsdir=$(DESTDIR)$(sysconfdir)/ganeti
 
 dist_os_SCRIPTS = create import export rename verify
 dist_os_DATA = ganeti_api_version variants.list parameters.list
@@ -23,11 +23,18 @@ dist_example_DATA = \
 	examples/hooks/hosts \
 	examples/hooks/interfaces \
 	examples/hooks/ssh-keys \
-	examples/hooks/timezone
+	examples/hooks/timezone \
+	examples/portage/make.conf \
+	examples/portage/package.use/system \
+	examples/portage/make.globals \
+	examples/portage/make.profile \
+	examples/catalyst/catalyst/linux-3.16.5-gentoo.config \
+	examples/catalyst/stage4-amd64-default-stable.spec
 
 EXTRA_DIST = \
 	common.sh.in \
-	defaults
+	defaults \
+	ganeti-instance-gentoobootstrap
 
 do_subst = sed \
 	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
@@ -38,14 +45,15 @@ common.sh: common.sh.in Makefile
 	chmod +x $@
 
 install-exec-local:
-	@mkdir_p@ $(variantsdir)
-	touch $(variantsdir)/default.conf
 	@mkdir_p@ $(defaultsdir)
+	@mkdir_p@ $(variantsdir)
 	$(INSTALL_DATA) $(top_srcdir)/defaults \
-	  $(defaultsdir)/ganeti-instance-debootstrap
+		$(variantsdir)/default
+	$(INSTALL_DATA) $(top_srcdir)/ganeti-instance-gentoobootstrap \
+		$(defaultdir)/ganeti-instance-gentoobootstrap
 
 uninstall-local:
 	rm -f $(variantsdir)/default.conf
-	rm -f $(defaultsdir)/ganeti-instance-debootstrap
+	rm -f $(defaultsdir)/ganeti-instance-gentoobootstrap
 
 CLEANFILES = common.sh
