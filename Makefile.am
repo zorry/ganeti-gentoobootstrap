@@ -12,26 +12,27 @@ dist_doc_DATA = COPYING NEWS README
 
 exampledir = $(docdir)/examples
 exampleconfdir = $(exampledir)/confdata
+examplehooksdir = $(exampledir)/hooks
 exampleportagedir = $(exampledir)/portage
 examplecatalystdir = $(exampledir)/catalyst
 
 dist_exampleconf_DATA = \
-	examples/hooks/confdata/defaultpasswords \
-	examples/hooks/confdata/timezone
+	examples/confdata/defaultpasswords \
+	examples/confdata/timezone
 
-dist_example_DATA = \
+dist_examplehooks_DATA = \
 	examples/hooks/defaultpasswords \
 	examples/hooks/grub \
 	examples/hooks/hosts \
 	examples/hooks/interfaces \
 	examples/hooks/ssh-keys \
-	examples/hooks/timezone \
+	examples/hooks/timezone
 
 dist_exampleportage_DATA = \
 	examples/portage/make.conf \
 	examples/portage/package.use/system
 
-dist_examplecatlyst_DATA = \
+dist_examplecatalyst_DATA = \
 	examples/catalyst/linux-3.16.5-gentoo.config \
 	examples/catalyst/stage4-amd64-default-stable.spec
 
