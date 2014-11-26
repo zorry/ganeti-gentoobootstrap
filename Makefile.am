@@ -29,7 +29,7 @@ dist_example_DATA = \
 
 dist_exampleportage_DATA = \
 	examples/portage/make.conf \
-	examples/portage/package.use/system
+	examples/portage/package.use
 
 dist_examplecatalyst_DATA = \
 	examples/catalyst/linux-3.16.5-gentoo.config \
