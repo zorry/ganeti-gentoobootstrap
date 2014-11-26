@@ -50,7 +50,7 @@ install-exec-local:
 	$(INSTALL_DATA) $(top_srcdir)/defaults \
 		$(variantsdir)/default
 	$(INSTALL_DATA) $(top_srcdir)/ganeti-instance-gentoobootstrap \
-		$(defaultdir)/ganeti-instance-gentoobootstrap
+		$(defaultsdir)/ganeti-instance-gentoobootstrap
 
 uninstall-local:
 	rm -f $(variantsdir)/default.conf
