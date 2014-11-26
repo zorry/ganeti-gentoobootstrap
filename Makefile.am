@@ -28,7 +28,7 @@ dist_example_DATA = \
 	examples/portage/package.use/system \
 	examples/portage/make.globals \
 	examples/portage/make.profile \
-	examples/catalyst/catalyst/linux-3.16.5-gentoo.config \
+	examples/catalyst/linux-3.16.5-gentoo.config \
 	examples/catalyst/stage4-amd64-default-stable.spec
 
 EXTRA_DIST = \
