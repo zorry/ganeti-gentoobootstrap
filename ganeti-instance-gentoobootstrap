@@ -37,5 +37,5 @@ FILESYSTEM="ext4"
 # By default /etc/ganeti/instance-gentoobootstrap/hooks
 CUSTOMIZE_DIR="/etc/ganeti/instance-gentoobootstrap/hooks"
 
-# IMAGE_DEBUG: turn on debugging output for the scripts
-IMAGE_DEBUG=0
+# DEBUG: turn on debugging output for the scripts
+DEBUG=no

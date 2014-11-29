@@ -23,7 +23,7 @@ LOSETUP="/sbin/losetup"
 KPARTX="/sbin/kpartx -s"
 PARTED="/usr/sbin/parted"
 MKDIR_P="/bin/mkdir -p"
-INSTANCE_MEM=
+INSTANCE_MEM="$INSTANCE_BE_maxmem"
 
 CLEANUP=( )
 
@@ -32,8 +32,9 @@ log_error() {
 }
 
 debug() {
-  [ "$IMAGE_DEBUG" == "1" -o "$IMAGE_DEBUG" == "yes" ] &&  $@ || :
+  ["$DEBUG" == "yes" ] &&  $@ || :
 }
+
 get_api5_arguments() {
   GETOPT_RESULT=$*
   # Note the quotes around `$TEMP': they are essential!
@@ -96,14 +97,6 @@ get_api10_arguments() {
   fi
   old_name=$OLD_INSTANCE_NAME
 }
-
-#get_os_type() {
-#  OS_TYPE="gentoo"
-#}
-
-#get_os() {
-#  OPERATING_SYSTEM="gentoo"
-#}
 
 format_disk0() {
   local parted_cmd="${PARTED} $1 --script --"
@@ -310,7 +303,7 @@ if [ -n "$OS_VARIANT" ]; then
     . "$VARIANT_CONFIG"
   else
     if grep -qxF "$OS_VARIANT" variants.list; then
-      log_error "ERROR: instance-debootstrap configuration error"
+      log_error "ERROR: instance-gentoobootstrap configuration error"
       log_error "  Published variant $OS_VARIANT is missing its config file"
       log_error "  Please create $VARIANT_CONFIG or unpublish the variant"
       log_error "  (by removing $OS_VARIANT from variants.list)"

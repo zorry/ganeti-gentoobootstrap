@@ -70,7 +70,7 @@ fi
 catalyst -f ${CATALYST_SPEC} || exit 1
 
 # extract the stage4 file
-if [ i -f "${STAGE4_FILE}" ] ; then
+if [ ! -f "${STAGE4_FILE}" ] ; then
   log_error "Can't find stage4 file: $STAGE4_FILE"
   exit 1
 fi
