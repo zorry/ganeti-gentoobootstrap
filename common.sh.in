@@ -237,7 +237,7 @@ setup_target() {
 
 trap cleanup EXIT
 
-DEFAULT_FILE="@sysconfdir@/ganeti-instance-gentoobootstrap"
+DEFAULT_FILE="@sysconfdir@/ganeti/ganeti-instance-gentoobootstrap"
 if [ -f "$DEFAULT_FILE" ]; then
     . "$DEFAULT_FILE"
 fi

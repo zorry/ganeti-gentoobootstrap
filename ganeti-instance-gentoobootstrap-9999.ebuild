@@ -2,12 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/app-emulation/ganeti-instance-gentoobootstrap/ganeti-instance-gentooobootstrap-9999.ebuild,v 1.0 2013/05/13 02:40:43 zorry Exp $
 
-EAPI=2
+EAPI=4
 
 inherit eutils git-2 autotools
 
 DESCRIPTION="Scripts to build Ganeti VMs with Gentoo and catalyst"
-HOMEPAGE="http://code.google.com/p/ganeti/"
+HOMEPAGE="https://github.com/zorry/ganeti-gentoobootstrap"
 SRC_URI=""
 EGIT_REPO_URI="https://github.com/zorry/ganeti-gentoobootstrap.git"
 
@@ -18,24 +18,24 @@ IUSE=""
 
 DEPEND=""
 RDEPEND="app-arch/dump
-app-emulation/ganeti
-dev-util/catalyst
-sys-fs/parted[device-mapper]
-sys-fs/lvm2
->=sys-apps/coreutils-6.10-r1
-sys-apps/util-linux
-sys-fs/e2fsprogs"
+	app-emulation/ganeti
+	dev-util/catalyst
+	sys-fs/parted[device-mapper]
+	sys-fs/lvm2
+	>=sys-apps/coreutils-6.10-r1
+	sys-apps/util-linux
+	sys-fs/e2fsprogs"
 
 src_prepare() {
 	eautoreconf
 	}
 
 src_configure() {
-	econf --docdir=/usr/share/doc/${PN} || die "econf failed"
+	econf --docdir=/usr/share/doc/${PN}
 	}
 
 src_install() {
-	emake DESTDIR="${D}" install || die "install failed"
+	emake DESTDIR="${D}" install
 	insinto /etc/ganeti/instance-gentoobootstrap/hooks
 	doins examples/hooks/*
 	insinto /etc/ganeti/instance-gentoobootstrap/catalyst
