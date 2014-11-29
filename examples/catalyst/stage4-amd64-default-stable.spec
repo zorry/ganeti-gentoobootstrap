@@ -150,7 +150,7 @@ stage4/gk_mainargs: --lvm
 # correctly for us.  Since we do not use this, it is left blank below.
 # example:
 # stage4/rcadd:
-stage4/rcadd: syslog-ng sshd
+stage4/rcadd: syslog-ng|default sshd|default
 
 # This is for removing init script from runlevels.  It is executed after the
 # defaults shipped with catalyst, so it is possible to remove the defaults using
