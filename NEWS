@@ -1,3 +1,8 @@
 0.1
 	We can create vm's with help of catalyst's stage4.
 	The code is from image and debootstrap.
+	We support plain (lvm)
+	Make 3 partions Boot, Swap and Root
+	Boot and Swap can be set in size
+	The stage4 i build from spec
+	We have grub, hosts, passwd, timezone and network hooks

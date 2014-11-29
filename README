@@ -34,25 +34,27 @@ python modules tree (e.g.
 a variable named OS_SEARCH_PATH will list all the directories in which
 ganeti will look for OS definitions.
 
+On Gentoo just use the ebuild.
+
 Configuration of instance creation
 ----------------------------------
 
 Note: the minimum disk size accepted is 256MB, as ``gentoobootstrap``
-requires disk space both for downloading the packages and installing
+requires disk space for the packages and installing
 them.
 
 The kind of instance created can be customized via a settings file. This
 file is not installed by default, as the instance creation will work
 without it. The creation scripts will look for it in
-``$sysconfdir/default/ganeti-instance-gentoobootstrap``, so if you have run
+``$sysconfdir/ganeti/ganeti-instance-gentoobootstrap``, so if you have run
 configure with the parameter ``--sysconfdir=/etc``, the final filename
-will be ``/etc/default/ganeti-instance-debootstrap``.
+will be ``/etc/ganeti/ganeti-instance-gentoobootstrap``.
 
 The following settings will be examined in this file (see also the file
 named 'defaults' in the source distribution for more details):
 
 - CUSTOMIZE_DIR: a directory containing customization script for the
-  instance.  (by default $sysconfdir/ganeti/instance-debootstrap/hooks)
+  instance.  (by default $sysconfdir/ganeti/instance-gentoobootstrap/hooks)
   See "Customization of the instance" below.
 
 Note that the settings file is important on the node that the instance
@@ -88,18 +90,16 @@ Now create the file
 ``$sysconfdir/ganeti/instance-debootstrap/variants/unstable.conf`` with the
 following content::
 
-  MIRROR="http://archive.ubuntu.com/ubuntu/"
-  SUITE="precise"
-  COMPONENTS="main,universe"
-  ARCH="amd64"
+CATALYST_SPEC="/etc/ganeti/instance-gentoobootstrap/catalyst/stage4-amd64-default-unstable.spec"
+STAGE4_FILE="/var/tmp/catalyst/builds/default/stage4-amd64-unstable-date.tar.bz2"
+PORTAGE_CONFDIR="/etc/ganeti/instance-gentoobootstrap/catalyst/unstable/etc/portage"
+SNAPSHOT="20141128"
 
-You can create Ubuntu 12.04 instances as follows::
+You can create Gentoo unstable instances as follows::
 
   gnt-instance add -t plain -o gentoobootstrap+unstable --disk 0:size=10000m -n node1.example.com instance1.example.com
 
-For this to work, make sure that you have the appropriate debootstrap script
-for precise (or just create a symlink called ``precise`` to ``gutsy`` in
-``/usr/share/debootstrap/scripts``).
+For this to work, make sure that you know how to setup catalyst, stage4 and portage
 
 Instance creation parameters
 ----------------------------
@@ -109,15 +109,15 @@ instance creation time with the ``-O`` parameter of ``gnt-instance``.
 
 The supported parameters are:
 
-- filesystem: the filesystem type to use for the root partition. This  has to
+- filesystem: the filesystem type to use for the root partition. This has to
   be a filesystem type supported by ``mke2fs``. The default is 'ext4'.
 
 Customization of the instance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If run-parts is in the os create script, and the CUSTOMIZE_DIR (by
-default $sysconfdir/ganeti/instance-debootstrap/hooks,
-/etc/ganeti/instance-debootstrap/hooks if you configured the os with
+default $sysconfdir/ganeti/instance-gentoobootstrap/hooks,
+/etc/ganeti/instance-gentoobootstrap/hooks if you configured the os with
 --sysconfdir=/etc) directory exists any executable whose name matches
 the run-parts execution rules (quoting run-parts(8): the names must
 consist entirely of upper and lower case letters, digits, underscores,
@@ -135,21 +135,19 @@ The scripts in CUSTOMIZE_DIR should not start any long-term processes or
 daemons using this directory, otherwise the installation will fail because it
 won't be able to umount the filesystem from the directory, and hand the
 instance back to Ganeti.
+We have allready copied all the hooks to
+``$sysconfdir/ganeti/instance-gentoobootstrap/hooks/``
 
 Example
 +++++++
 
 The root password can be automatically set when the instance is created. In
-order to do this, the ``examples/hooks/defaultpasswords`` file has to be copied
-to ``$sysconfdir/ganeti/instance-debootstrap/hooks/``, and its data file
-``examples/hooks/confdata/defaultpasswords`` has to be copied to
-``$sysconfdir/ganeti/instance-debootstrap/hooks/confdata/`` and modified
-accordingly to one's own need. The file syntax is such that each line represent
-a user, with the format::
+order to do this, you modifid accordingly to one's own need. 
+The file syntax is such that each line represent a user, with the format::
 
   username:password
 
-After copying the two files, just running the instance creation as usual will
+After modified the two files, just running the instance creation as usual will
 automatically cause their execution.
 
 Instance notes
