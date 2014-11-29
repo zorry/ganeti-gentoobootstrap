@@ -32,7 +32,7 @@ log_error() {
 }
 
 debug() {
-  ["$DEBUG" == "yes" ] &&  $@ || :
+  [ $DEBUG == "yes" ] &&  $@ || :
 }
 
 get_api5_arguments() {
@@ -258,7 +258,7 @@ fi
 : ${OVERLAYS_DIR:="/etc/ganeti/instance-gentoobootstrap/overlays"}
 : ${EXPORT_DIR:="/tmp"}
 : ${IMAGE_DIR:="/var/lib/cache/ganeti-instance-gentoobootstrap"}
-: ${IMAGE_DEBUG:="no"}
+: ${DEBUG:="no"}
 
 SCRIPT_NAME=$(basename $0)
 KERNEL_PATH="$INSTANCE_HV_kernel_path"

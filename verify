@@ -19,11 +19,11 @@
 
 set -e
 
-case $OSP_FILESYSTEM in
+case $FILESYSTEM in
   ""|"ext2"|"ext3"|"ext4")
     ;;
   *)
-    echo "Invalid value '$OSP_FILESYSTEM' for the filesystem parameter" 1>&2
+    echo "Invalid value '$FILESYSTEM' for the filesystem parameter" 1>&2
     exit 1
     ;;
 esac
