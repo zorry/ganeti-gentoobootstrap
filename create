@@ -19,11 +19,13 @@
 
 set -e
 
+. common.sh
+
+debug set -x
+
 # minimum device size is 256 MB, but we use 255 to account for
 # potential rounding
 declare -ri MIN_DEV_SIZE=$((255*1048576))
-
-. common.sh
 
 # If the target device is not a real block device we'll first losetup it.
 # This is needed for file disks.
@@ -65,27 +67,27 @@ if [ ! -f "${CATALYST_SPEC}" ] ; then
   log_error "Can't find Catalyst spec file: $CATALYST_SPEC"
   exit 1
 fi
-catalyst -f ${CATALYST_SPEC}
+catalyst -f ${CATALYST_SPEC} || exit 1
 
 # extract the stage4 file
 if [ i -f "${STAGE4_FILE}" ] ; then
   log_error "Can't find stage4 file: $STAGE4_FILE"
   exit 1
 fi
-tar -C ${TARGET} -xjpf ${STAGE4_FILE}
+tar -C ${TARGET} -xjpf ${STAGE4_FILE} || exit 1
 
 setup_fstab $TARGET
-setup_console $TARGET
+
+# mount the needed stuff to use emerge
+setup_target $TARGET
 
 # reset the root password
-chroot $TMPDIR passwd -d root
+chroot $TARGET passwd -d root
 
 RUN_PARTS=`which run-parts`
 
 if [ -n "$RUN_PARTS" -a -n "$CUSTOMIZE_DIR" -a -d "$CUSTOMIZE_DIR" ]; then
-  TARGET=$TMPDIR
   BLOCKDEV=$blockdev
-  FSYSDEV=$filesystem_dev
   export TARGET BLOCKDEV ROOT_DEV BOOT_DEV
   $RUN_PARTS $CUSTOMIZE_DIR
 fi

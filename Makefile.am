@@ -5,7 +5,7 @@ variantsdir=$(DESTDIR)$(sysconfdir)/ganeti/instance-gentoobootstrap/variants
 defaultsdir=$(DESTDIR)$(sysconfdir)/ganeti
 
 dist_os_SCRIPTS = create import export rename verify
-dist_os_DATA = ganeti_api_version
+dist_os_DATA = ganeti_api_version parameters.list
 os_DATA = common.sh
 
 dist_doc_DATA = COPYING NEWS README

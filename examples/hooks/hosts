@@ -5,6 +5,8 @@
 VMFQDN=$INSTANCE_NAME
 VMHOSTNAME=${VMFQDN%%.*}
 
-[ x$VMFQDN -eq x$VMHOSTNAME ] && VMFQDN=""
-
-echo "127.0.1.1		$VMFQDN $VMHOSTNAME" >> $TARGET/etc/host
+echo "127.0.1.1	$VMFQDN	$VMHOSTNAME	localhost" > $TARGET/etc/hosts
+echo "::1			$VMFQDN	$VMHOSTNAME	localhost" >> $TARGET/etc/hosts
+cat > $TARGET/etc/conf.d/hostname << EOF
+hostname="${VMFQDN}"
+EOF

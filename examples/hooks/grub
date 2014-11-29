@@ -1,11 +1,8 @@
 #!/bin/bash
 #
-# This is an example script that install and configure grub after installation.
+# This is an example script that install and configure grub.
 # To use it put it in your CUSTOMIZE_DIR and make it executable.
 #
-# Do not include grub in EXTRA_PKGS of
-# $sysconfdir/default/ganeti-instance-debootstrap because it will
-# cause error of debootstrap.
 
 set -e
 
@@ -26,12 +23,6 @@ else
   echo "Unknown disk type"
   exit 1
 fi
-
-mount -o bind /dev $TARGET/dev
-CLEANUP+=("umount $TARGET/dev")
-
-mount -t proc proc $TARGET/proc
-CLEANUP+=("umount $TARGET/proc")
 
 case $DISKTYPE in
   lvm)

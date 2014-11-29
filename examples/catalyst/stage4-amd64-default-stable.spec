@@ -54,7 +54,7 @@ distcc_hosts:
 # targets to minimize problems.
 # example:
 # portage_confdir: /etc/portage
-portage_confdir: /etc/ganeti/instance-gentoobootstrap/catalyst/default/etc//portage
+portage_confdir: /etc/ganeti/instance-gentoobootstrap/catalyst/default/etc/portage
 
 # This option specifies the location to a portage overlay that you would like to
 # have used when building this target.
@@ -150,7 +150,7 @@ stage4/gk_mainargs: --lvm
 # correctly for us.  Since we do not use this, it is left blank below.
 # example:
 # stage4/rcadd:
-stage4/rcadd: syslog-ng
+stage4/rcadd: syslog-ng sshd
 
 # This is for removing init script from runlevels.  It is executed after the
 # defaults shipped with catalyst, so it is possible to remove the defaults using
@@ -219,6 +219,7 @@ boot/kernel/gentoo/gk_kernargs:
 # This option sets the USE flags used to build the kernel and also any packages
 # which are defined under this kernel label.  These USE flags are additive from
 # the default USE for the specified profile.
+# Grub need device-mapper
 # example:
 # boot/kernel/gentoo/use: pcmcia usb -X
 boot/kernel/gentoo/use: device-mapper
