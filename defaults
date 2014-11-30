@@ -12,7 +12,7 @@
 # CATALYST_SPEC: The spec file for Catalyst to build the stage4 image
 CATALYST_SPEC="/etc/ganeti/instance-gentoobootstrap/catalyst/stage4-amd64-default-stable.spec"
 
-# STAGE4_FILE: The stage4 image that was build of Catalyst
+# STAGE4_FILE: The stage4 image that was build by Catalyst
 STAGE4_FILE="/var/tmp/catalyst/builds/default/stage4-amd64-stable-date.tar.bz2"
 
 # Should be the same as in the catalyst spec file

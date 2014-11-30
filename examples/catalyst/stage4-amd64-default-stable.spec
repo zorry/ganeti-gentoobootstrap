@@ -32,6 +32,7 @@ rel_type: default
 profile: default/linux/amd64/13.0
 
 # This specifies which snapshot to use for building this target.
+# It is defined in variants conf to.
 # example:
 # snapshot: 2006.1
 snapshot: latest
@@ -52,6 +53,7 @@ distcc_hosts:
 # This is an optional directory containing portage configuration files.  It
 # follows the same syntax as /etc/portage and should be consistent across all
 # targets to minimize problems.
+# Portage setup for the vm and is defined in the variants conf to.
 # example:
 # portage_confdir: /etc/portage
 portage_confdir: /etc/ganeti/instance-gentoobootstrap/catalyst/default/etc/portage
@@ -102,6 +104,7 @@ stage4/packages: syslog-ng dhcpcd logrotate bc
 # there will not be one listed below.  The syntax is simply the full path and
 # filename to the shell script that you wish to execute.  The script is copied
 # into the chroot by catalyst automatically.
+# Use the gentoobootstrap hooks instead
 # example:
 # stage4/fsscript:
 # Use the hooks dir insted for the scripts

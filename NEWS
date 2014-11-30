@@ -5,4 +5,5 @@
 	Make 3 partions Boot, Swap and Root
 	Boot and Swap can be set in size
 	The stage4 i build from spec
-	We have grub, hosts, passwd, timezone and network hooks
+	We have Grub2, hosts, passwd, timezone and network hooks
+

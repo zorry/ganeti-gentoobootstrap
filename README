@@ -99,7 +99,7 @@ You can create Gentoo unstable instances as follows::
 
   gnt-instance add -t plain -o gentoobootstrap+unstable --disk 0:size=10000m -n node1.example.com instance1.example.com
 
-For this to work, make sure that you know how to setup catalyst, stage4 and portage
+For this to work, make sure that you know how to setup catalyst, stage4, portage and build custom kernels.
 
 Instance creation parameters
 ----------------------------
